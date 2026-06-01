@@ -85,14 +85,16 @@ O `KeyResolver` extrai a chave de rate limiting do header `Authorization`. Se au
 
 ## Rate limiting
 
-Aplicado exclusivamente ao prefixo `/flags/**`, usado pelo SDK `lib-ff-client`.
+Aplicado a **todas as rotas** via `RedisRateLimiter` (token bucket). A chave é o valor do header `Authorization`; fallback para IP do cliente, depois `"anonymous"`.
 
-| Parâmetro | Valor |
-|---|---|
-| `replenishRate` | 20 req/s |
-| `burstCapacity` | 40 req/s |
-| Chave | `Authorization` header (token de API ou JWT) |
-| Armazenamento | Redis |
+| Rota | `replenishRate` | `burstCapacity` | Variáveis de ambiente |
+|---|---|---|---|
+| `/auth/**` | 10 req/s | 20 req/s | `RATE_AUTH_REPLENISH` / `RATE_AUTH_BURST` |
+| `/flags/**` | 20 req/s | 40 req/s | `RATE_FLAGS_REPLENISH` / `RATE_FLAGS_BURST` |
+| `/workspaces/**` | 30 req/s | 60 req/s | `RATE_WORKSPACES_REPLENISH` / `RATE_WORKSPACES_BURST` |
+| `/tokens/**` | 10 req/s | 20 req/s | `RATE_TOKENS_REPLENISH` / `RATE_TOKENS_BURST` |
+| `/dashboard/**` | 30 req/s | 60 req/s | `RATE_DASHBOARD_REPLENISH` / `RATE_DASHBOARD_BURST` |
+| `/audit/**` | 20 req/s | 40 req/s | `RATE_AUDIT_REPLENISH` / `RATE_AUDIT_BURST` |
 
 Requisições acima do burst recebem `429 Too Many Requests`.
 
@@ -110,6 +112,20 @@ Requisições acima do burst recebem `429 Too Many Requests`.
 | `MS_AUDIT_URI` | `http://ms-audit:8084` | URI do ms-audit |
 | `REDIS_HOST` | `localhost` | Host do Redis |
 | `REDIS_PORT` | `6379` | Porta do Redis |
+| `AUTH_PUBLIC_ISSUER_URI` | `http://localhost:9000` | Issuer URI público (usado pelo Swagger UI para OAuth2) |
+| `GATEWAY_PUBLIC_URL` | `http://localhost:8090` | URL pública do gateway (OAuth2 redirect do Swagger UI) |
+| `RATE_AUTH_REPLENISH` | `10` | Rate limit replenish de `/auth/**` (req/s) |
+| `RATE_AUTH_BURST` | `20` | Rate limit burst de `/auth/**` (req/s) |
+| `RATE_FLAGS_REPLENISH` | `20` | Rate limit replenish de `/flags/**` (req/s) |
+| `RATE_FLAGS_BURST` | `40` | Rate limit burst de `/flags/**` (req/s) |
+| `RATE_WORKSPACES_REPLENISH` | `30` | Rate limit replenish de `/workspaces/**` (req/s) |
+| `RATE_WORKSPACES_BURST` | `60` | Rate limit burst de `/workspaces/**` (req/s) |
+| `RATE_TOKENS_REPLENISH` | `10` | Rate limit replenish de `/tokens/**` (req/s) |
+| `RATE_TOKENS_BURST` | `20` | Rate limit burst de `/tokens/**` (req/s) |
+| `RATE_DASHBOARD_REPLENISH` | `30` | Rate limit replenish de `/dashboard/**` (req/s) |
+| `RATE_DASHBOARD_BURST` | `60` | Rate limit burst de `/dashboard/**` (req/s) |
+| `RATE_AUDIT_REPLENISH` | `20` | Rate limit replenish de `/audit/**` (req/s) |
+| `RATE_AUDIT_BURST` | `40` | Rate limit burst de `/audit/**` (req/s) |
 
 ---
 
@@ -148,8 +164,10 @@ Os testes requerem Docker para o Testcontainers (Redis). O `ReactiveJwtDecoder` 
 |---|---|
 | `GatewayApplicationTests` | Contexto Spring carrega sem erros |
 | `SecurityConfigTest` | `/flags/**` sem JWT → `401`; `/auth/**` sem JWT → não `401` |
+| `RateLimiterTest` | Rate limiting aplicado por rota conforme configuração |
+| `CorrelatorFilterTest` | `X-Correlator` propagado ou gerado; exposto no response |
 
-Os endpoints do Swagger UI (`/swagger-ui/**`) e os specs estáticos (`/openapi/**`) são públicos — não exigem JWT — conforme configurado no `SecurityConfig`.
+Os endpoints do Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`) e os specs estáticos (`/openapi/**`) são públicos — não exigem JWT — conforme configurado no `SecurityConfig`.
 
 ---
 
