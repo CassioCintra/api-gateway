@@ -1,0 +1,8 @@
+openapi: 3.1.0
+info:
+  title: ms-feature-flags
+  description: Gerenciamento de feature flags.
+  version: 0.0.1-SNAPSHOT
+servers:
+  - url: http://localhost:8081
+paths: {}
