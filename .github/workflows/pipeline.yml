@@ -40,7 +40,7 @@ jobs:
     needs: [quality, security-source, db-migration]
     uses: CassioCintra/platform-ops/.github/workflows/reusable-cd.yml@main
     with:
-      service-name: ms-feature-flags-management
+      service-name: gateway
       java-version: '25'
     secrets:
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -51,7 +51,7 @@ jobs:
     if: always()
     uses: CassioCintra/platform-ops/.github/workflows/reusable-notify.yml@main
     with:
-      service-name: ms-feature-flags-management
+      service-name: gateway
       image-tag: ${{ needs.cd.outputs.image-tag }}
       overall-status: ${{ needs.cd.result }}
       tests-result: ${{ needs.quality.result }}

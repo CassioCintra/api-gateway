@@ -44,11 +44,13 @@ O gateway serve specs OpenAPI estáticas de cada microsserviço a partir de `src
 
 ### Atualizando um spec
 
-Quando a API de um microsserviço mudar, regenere e commite o arquivo correspondente:
+Os specs são atualizados **automaticamente** via pipeline `update-gateway-spec.yml` presente em cada microsserviço. A pipeline dispara após o CI/CD (`Pipeline`) concluir com sucesso em `main`, roda apenas o `OpenApiSpecGeneratorTest` e abre um PR no gateway se o spec tiver mudado.
+
+Para atualizar manualmente durante o desenvolvimento:
 
 ```bash
 # no repositório do microsserviço
-./mvnw verify   # gera target/openapi.yaml (requer springdoc configurado)
+./mvnw test -Dtest=OpenApiSpecGeneratorTest  # gera target/openapi.yaml (requer Docker)
 
 # copie para o gateway
 cp target/openapi.yaml ../gateway/src/main/resources/static/openapi/ms-<nome>.yaml

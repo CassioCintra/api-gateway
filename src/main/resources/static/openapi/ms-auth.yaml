@@ -1,8 +1,142 @@
 openapi: 3.1.0
 info:
   title: ms-auth
-  description: Autenticação e autorização — login, registro e emissão de JWT.
-  version: 0.0.1-SNAPSHOT
+  version: 0.0.1
 servers:
-  - url: http://localhost:9000
-paths: {}
+- url: http://localhost:9000
+  description: Local
+paths:
+  /auth/users:
+    post:
+      tags:
+      - user-controller
+      operationId: createFromInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserCreatedResponse"
+  /auth/register:
+    post:
+      tags:
+      - user-controller
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserCreatedResponse"
+  /auth/admin/clients:
+    post:
+      tags:
+      - admin-client-controller
+      operationId: register_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterClientRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ClientResponse"
+  /auth/admin/clients/{clientId}:
+    delete:
+      tags:
+      - admin-client-controller
+      operationId: revoke
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+components:
+  schemas:
+    RegisterUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          maxLength: 2147483647
+          minLength: 8
+        fullName:
+          type: string
+          minLength: 1
+      required:
+      - email
+      - fullName
+      - password
+      - username
+    UserCreatedResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+    RegisterClientRequest:
+      type: object
+      properties:
+        clientId:
+          type: string
+          minLength: 1
+        clientSecret:
+          type: string
+          minLength: 1
+        grantTypes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        scopes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        redirectUris:
+          type: array
+          items:
+            type: string
+      required:
+      - clientId
+      - clientSecret
+      - grantTypes
+      - scopes
+    ClientResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        clientId:
+          type: string
