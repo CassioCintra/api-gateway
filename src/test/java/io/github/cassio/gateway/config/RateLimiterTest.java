@@ -33,12 +33,12 @@ import static org.mockito.Mockito.when;
         properties = {
                 "spring.cloud.gateway.server.webflux.httpclient.connect-timeout=100",
                 "spring.cloud.gateway.server.webflux.httpclient.response-timeout=500ms",
-                "RATE_AUTH_REPLENISH=1",      "RATE_AUTH_BURST=1",
-                "RATE_FLAGS_REPLENISH=1",     "RATE_FLAGS_BURST=1",
-                "RATE_WORKSPACES_REPLENISH=1","RATE_WORKSPACES_BURST=1",
-                "RATE_TOKENS_REPLENISH=1",    "RATE_TOKENS_BURST=1",
-                "RATE_DASHBOARD_REPLENISH=1", "RATE_DASHBOARD_BURST=1",
-                "RATE_AUDIT_REPLENISH=1",     "RATE_AUDIT_BURST=1"
+                "RATE_AUTH_REPLENISH=1",      "RATE_AUTH_BURST=5",
+                "RATE_FLAGS_REPLENISH=1",     "RATE_FLAGS_BURST=5",
+                "RATE_WORKSPACES_REPLENISH=1","RATE_WORKSPACES_BURST=5",
+                "RATE_TOKENS_REPLENISH=1",    "RATE_TOKENS_BURST=5",
+                "RATE_DASHBOARD_REPLENISH=1", "RATE_DASHBOARD_BURST=5",
+                "RATE_AUDIT_REPLENISH=1",     "RATE_AUDIT_BURST=5"
         }
 )
 class RateLimiterTest {
@@ -116,10 +116,13 @@ class RateLimiterTest {
             "/audit/test"
     })
     void shouldReturn429WhenRateLimitExceeded(String uri) {
-        webTestClient.get().uri(uri)
-                .header("Authorization", BEARER_TOKEN)
-                .exchange()
-                .expectStatus().isOk();
+        // Exhaust the burst bucket (5 tokens at 1 token/s replenish gives ~5s CI tolerance)
+        for (int i = 0; i < 5; i++) {
+            webTestClient.get().uri(uri)
+                    .header("Authorization", BEARER_TOKEN)
+                    .exchange()
+                    .expectStatus().isOk();
+        }
 
         webTestClient.get().uri(uri)
                 .header("Authorization", BEARER_TOKEN)
