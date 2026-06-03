@@ -1,0 +1,63 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+  checks: write
+  security-events: write
+
+jobs:
+  quality:
+    name: Quality
+    uses: CassioCintra/platform-ops/.github/workflows/reusable-quality.yml@main
+    with:
+      java-version: '25'
+      enable-tests: true
+      coverage-minimum: 90
+      enable-sonar: true
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  security-source:
+    name: Security — source
+    uses: CassioCintra/platform-ops/.github/workflows/reusable-security.yml@main
+
+  db-migration:
+    name: DB migration
+    uses: CassioCintra/platform-ops/.github/workflows/reusable-db-migration.yml@main
+    with:
+      migration-tool: flyway
+      postgres-version: '16'
+      java-version: '25'
+
+  cd:
+    name: Build and publish
+    needs: [quality, security-source, db-migration]
+    uses: CassioCintra/platform-ops/.github/workflows/reusable-cd.yml@main
+    with:
+      service-name: ms-feature-flags-management
+      java-version: '25'
+    secrets:
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+  notify:
+    name: Notify
+    needs: [quality, security-source, db-migration, cd]
+    if: always()
+    uses: CassioCintra/platform-ops/.github/workflows/reusable-notify.yml@main
+    with:
+      service-name: ms-feature-flags-management
+      image-tag: ${{ needs.cd.outputs.image-tag }}
+      overall-status: ${{ needs.cd.result }}
+      tests-result: ${{ needs.quality.result }}
+      quality-result:  ${{ needs.quality.result }}
+      security-result: ${{ needs.security-source.result }}
+      migration-result: ${{ needs.db-migration.result }}
+      cd-result: ${{ needs.cd.result }}
+      notify-discord: true
+    secrets: inherit
