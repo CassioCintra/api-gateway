@@ -4,5 +4,371 @@ info:
   description: Gerenciamento de workspaces e tokens de API.
   version: 0.0.1-SNAPSHOT
 servers:
-  - url: http://localhost:8082
-paths: {}
+- url: http://localhost:8082/users/v1
+  description: Local
+paths:
+  /workspaces:
+    post:
+      tags:
+      - workspace-controller
+      operationId: createWorkspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkspaceRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WorkspaceResponse"
+  /workspaces/{workspaceId}/tokens:
+    get:
+      tags:
+      - api-token-controller
+      operationId: listTokens
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiTokenResponse"
+    post:
+      tags:
+      - api-token-controller
+      operationId: createToken
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApiTokenRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiTokenResponse"
+  /workspaces/{id}/invites:
+    post:
+      tags:
+      - invite-controller
+      operationId: createInvite
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInviteRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InviteResponse"
+  /invites/accept:
+    post:
+      tags:
+      - invite-accept-controller
+      operationId: acceptInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcceptInviteRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /workspaces/{id}/members/{userId}/role:
+    patch:
+      tags:
+      - workspace-controller
+      operationId: changeMemberRole
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeRoleRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /workspaces/{id}/members:
+    get:
+      tags:
+      - workspace-controller
+      operationId: listMembers
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkspaceMemberResponse"
+  /invites/{token}/info:
+    get:
+      tags:
+      - invite-accept-controller
+      operationId: getInviteInfo
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InviteInfoResponse"
+  /workspaces/{workspaceId}/tokens/{id}:
+    delete:
+      tags:
+      - api-token-controller
+      operationId: revokeToken
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+  /workspaces/{id}/members/{userId}:
+    delete:
+      tags:
+      - workspace-controller
+      operationId: removeMember
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+components:
+  schemas:
+    CreateWorkspaceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+          minLength: 1
+      required:
+      - name
+      - slug
+    WorkspaceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        ownerId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CreateApiTokenRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+      required:
+      - name
+    ApiTokenResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        plainToken:
+          type: string
+        lastUsedAt:
+          type: string
+          format: date-time
+        revokedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    CreateInviteRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - EDITOR
+          - VIEWER
+      required:
+      - email
+      - role
+    InviteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - EDITOR
+          - VIEWER
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ACCEPTED
+          - EXPIRED
+        expiresAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    AcceptInviteRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+      required:
+      - token
+    ChangeRoleRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - EDITOR
+          - VIEWER
+      required:
+      - role
+    WorkspaceMemberResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - EDITOR
+          - VIEWER
+        joinedAt:
+          type: string
+          format: date-time
+    InviteInfoResponse:
+      type: object
+      properties:
+        email:
+          type: string
+        workspaceName:
+          type: string
+        role:
+          type: string
+          enum:
+          - ADMIN
+          - EDITOR
+          - VIEWER
+        expiresAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - PENDING
+          - ACCEPTED
+          - EXPIRED
