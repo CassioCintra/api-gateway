@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: ms-workspace-management
-  description: Gerenciamento de workspaces e tokens de API.
-  version: 0.0.1-SNAPSHOT
+  version: 0.0.1
 servers:
 - url: http://localhost:8082/users/v1
   description: Local
