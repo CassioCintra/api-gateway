@@ -154,10 +154,24 @@ MS_WORKSPACE_URI=http://localhost:8082 \
 
 ---
 
+## Pipeline CI/CD
+
+| Job | Descrição |
+|---|---|
+| `quality` | Compila, roda testes e analisa com SonarCloud |
+| `security-source` | SAST via reusable workflow |
+| `cd` | Gera e publica imagem Docker no GHCR |
+| `notify` | Notificação no Discord com resultado geral |
+
+> O gateway não possui banco de dados, portanto não há job de migração na pipeline.
+> Cobertura de código (JaCoCo) não é exigida — um gateway é composto majoritariamente por configuração, e a qualidade é garantida pelos testes de integração com Testcontainers.
+
+---
+
 ## Testes
 
 ```bash
-./mvnw verify
+./mvnw test
 ```
 
 Os testes requerem Docker para o Testcontainers (Redis). O `ReactiveJwtDecoder` é substituído por um mock, dispensando o ms-auth em execução durante os testes.
