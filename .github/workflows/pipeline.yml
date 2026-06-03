@@ -27,17 +27,9 @@ jobs:
     name: Security — source
     uses: CassioCintra/platform-ops/.github/workflows/reusable-security.yml@main
 
-  db-migration:
-    name: DB migration
-    uses: CassioCintra/platform-ops/.github/workflows/reusable-db-migration.yml@main
-    with:
-      migration-tool: flyway
-      postgres-version: '16'
-      java-version: '25'
-
   cd:
     name: Build and publish
-    needs: [quality, security-source, db-migration]
+    needs: [quality, security-source]
     uses: CassioCintra/platform-ops/.github/workflows/reusable-cd.yml@main
     with:
       service-name: gateway
@@ -47,7 +39,7 @@ jobs:
 
   notify:
     name: Notify
-    needs: [quality, security-source, db-migration, cd]
+    needs: [quality, security-source, cd]
     if: always()
     uses: CassioCintra/platform-ops/.github/workflows/reusable-notify.yml@main
     with:
@@ -57,7 +49,7 @@ jobs:
       tests-result: ${{ needs.quality.result }}
       quality-result:  ${{ needs.quality.result }}
       security-result: ${{ needs.security-source.result }}
-      migration-result: ${{ needs.db-migration.result }}
+      migration-result: '-'
       cd-result: ${{ needs.cd.result }}
       notify-discord: true
     secrets: inherit
