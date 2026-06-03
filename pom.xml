@@ -18,6 +18,8 @@
 		<java.version>25</java.version>
 		<spring-cloud-gateway.version>5.0.1</spring-cloud-gateway.version>
 		<bouncycastle.version>1.84</bouncycastle.version>
+		<sonar.organization>cassiocintra</sonar.organization>
+		<sonar.projectKey>CassioCintra_api-gateway</sonar.projectKey>
 	</properties>
 
 	<dependencyManagement>
