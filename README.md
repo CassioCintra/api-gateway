@@ -44,7 +44,7 @@ O gateway serve specs OpenAPI estáticas de cada microsserviço a partir de `src
 
 ### Atualizando um spec
 
-Os specs são atualizados **automaticamente** via pipeline `update-gateway-spec.yml` presente em cada microsserviço. A pipeline dispara após o CI/CD (`Pipeline`) concluir com sucesso em `main`, roda apenas o `OpenApiSpecGeneratorTest` e abre um PR no gateway se o spec tiver mudado.
+Os specs não são atualizados automaticamente: sempre que a API de um microsserviço mudar, atualize o spec manualmente como abaixo.
 
 Para atualizar manualmente durante o desenvolvimento:
 
@@ -151,20 +151,6 @@ MS_FEATURE_FLAGS_URI=http://localhost:8081 \
 MS_WORKSPACE_URI=http://localhost:8082 \
 ./mvnw spring-boot:run
 ```
-
----
-
-## Pipeline CI/CD
-
-| Job | Descrição |
-|---|---|
-| `quality` | Compila, roda testes e analisa com SonarCloud |
-| `security-source` | SAST via reusable workflow |
-| `cd` | Gera e publica imagem Docker no GHCR |
-| `notify` | Notificação no Discord com resultado geral |
-
-> O gateway não possui banco de dados, portanto não há job de migração na pipeline.
-> Cobertura de código (JaCoCo) não é exigida — um gateway é composto majoritariamente por configuração, e a qualidade é garantida pelos testes de integração com Testcontainers.
 
 ---
 
