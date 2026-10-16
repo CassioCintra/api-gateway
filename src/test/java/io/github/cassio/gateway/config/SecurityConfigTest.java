@@ -91,7 +91,6 @@ class SecurityConfigTest {
     @ValueSource(strings = {
             "/flags/",
             "/workspaces/",
-            "/tokens/",
             "/dashboard/",
             "/audit/"
     })

@@ -64,20 +64,6 @@ spring:
                     redis-rate-limiter.requestedTokens: 1
                     key-resolver: "#{@authorizationHeaderKeyResolver}"
 
-            # ── ms-workspace-management — tokens ──────────────────────────────────
-            - id: ms-workspace-tokens
-              uri: ${MS_WORKSPACE_URI:http://ms-workspace-management:8082}
-              predicates:
-                - Path=/tokens/**
-              filters:
-                - RewritePath=/tokens/(?<segment>.*), /users/v1/tokens/$\{segment}
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: ${RATE_TOKENS_REPLENISH:10}
-                    redis-rate-limiter.burstCapacity: ${RATE_TOKENS_BURST:20}
-                    redis-rate-limiter.requestedTokens: 1
-                    key-resolver: "#{@authorizationHeaderKeyResolver}"
-
             # ── ms-dashboard ──────────────────────────────────────────────────────
             # Serviço ainda não implementado (Fase 6). Porta e context-path a confirmar.
             - id: ms-dashboard
