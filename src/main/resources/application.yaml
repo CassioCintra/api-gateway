@@ -56,25 +56,11 @@ spring:
               predicates:
                 - Path=/workspaces/**
               filters:
-                - RewritePath=/workspaces/(?<segment>.*), /users/v1/workspaces/$\{segment}
+                - RewritePath=/workspaces(?<segment>.*), /users/v1/workspaces$\{segment}
                 - name: RequestRateLimiter
                   args:
                     redis-rate-limiter.replenishRate: ${RATE_WORKSPACES_REPLENISH:30}
                     redis-rate-limiter.burstCapacity: ${RATE_WORKSPACES_BURST:60}
-                    redis-rate-limiter.requestedTokens: 1
-                    key-resolver: "#{@authorizationHeaderKeyResolver}"
-
-            # ── ms-workspace-management — tokens ──────────────────────────────────
-            - id: ms-workspace-tokens
-              uri: ${MS_WORKSPACE_URI:http://ms-workspace-management:8082}
-              predicates:
-                - Path=/tokens/**
-              filters:
-                - RewritePath=/tokens/(?<segment>.*), /users/v1/tokens/$\{segment}
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: ${RATE_TOKENS_REPLENISH:10}
-                    redis-rate-limiter.burstCapacity: ${RATE_TOKENS_BURST:20}
                     redis-rate-limiter.requestedTokens: 1
                     key-resolver: "#{@authorizationHeaderKeyResolver}"
 

@@ -22,7 +22,6 @@ Ponto de entrada único do ecossistema Switchboard. Recebe todas as requisiçõe
 | `/auth/**` | ms-auth `:9000` | `/auth/**` (pass-through) |
 | `/flags/**` | ms-feature-flags `:8081` | `/feature-flag/v1/**` |
 | `/workspaces/**` | ms-workspace-management `:8082` | `/users/v1/workspaces/**` |
-| `/tokens/**` | ms-workspace-management `:8082` | `/users/v1/tokens/**` |
 | `/dashboard/**` | ms-dashboard `:8083` | `/dashboard/v1/**` *(Fase 6)* |
 | `/audit/**` | ms-audit `:8084` | `/audit/v1/**` *(Fase 5)* |
 
@@ -94,7 +93,6 @@ Aplicado a **todas as rotas** via `RedisRateLimiter` (token bucket). A chave é 
 | `/auth/**` | 10 req/s | 20 req/s | `RATE_AUTH_REPLENISH` / `RATE_AUTH_BURST` |
 | `/flags/**` | 20 req/s | 40 req/s | `RATE_FLAGS_REPLENISH` / `RATE_FLAGS_BURST` |
 | `/workspaces/**` | 30 req/s | 60 req/s | `RATE_WORKSPACES_REPLENISH` / `RATE_WORKSPACES_BURST` |
-| `/tokens/**` | 10 req/s | 20 req/s | `RATE_TOKENS_REPLENISH` / `RATE_TOKENS_BURST` |
 | `/dashboard/**` | 30 req/s | 60 req/s | `RATE_DASHBOARD_REPLENISH` / `RATE_DASHBOARD_BURST` |
 | `/audit/**` | 20 req/s | 40 req/s | `RATE_AUDIT_REPLENISH` / `RATE_AUDIT_BURST` |
 
@@ -122,8 +120,6 @@ Requisições acima do burst recebem `429 Too Many Requests`.
 | `RATE_FLAGS_BURST` | `40` | Rate limit burst de `/flags/**` (req/s) |
 | `RATE_WORKSPACES_REPLENISH` | `30` | Rate limit replenish de `/workspaces/**` (req/s) |
 | `RATE_WORKSPACES_BURST` | `60` | Rate limit burst de `/workspaces/**` (req/s) |
-| `RATE_TOKENS_REPLENISH` | `10` | Rate limit replenish de `/tokens/**` (req/s) |
-| `RATE_TOKENS_BURST` | `20` | Rate limit burst de `/tokens/**` (req/s) |
 | `RATE_DASHBOARD_REPLENISH` | `30` | Rate limit replenish de `/dashboard/**` (req/s) |
 | `RATE_DASHBOARD_BURST` | `60` | Rate limit burst de `/dashboard/**` (req/s) |
 | `RATE_AUDIT_REPLENISH` | `20` | Rate limit replenish de `/audit/**` (req/s) |

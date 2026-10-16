@@ -91,7 +91,6 @@ class SecurityConfigTest {
     @ValueSource(strings = {
             "/flags/",
             "/workspaces/",
-            "/tokens/",
             "/dashboard/",
             "/audit/"
     })
@@ -106,6 +105,14 @@ class SecurityConfigTest {
     void shouldPermitAuthEndpointsWithoutToken() {
         webTestClient.get()
                 .uri("/auth/any")
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void shouldPermitHealthCheckWithoutToken() {
+        webTestClient.get()
+                .uri("/actuator/health")
                 .exchange()
                 .expectStatus().isOk();
     }

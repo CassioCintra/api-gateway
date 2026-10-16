@@ -36,7 +36,6 @@ import static org.mockito.Mockito.when;
                 "RATE_AUTH_REPLENISH=1",      "RATE_AUTH_BURST=5",
                 "RATE_FLAGS_REPLENISH=1",     "RATE_FLAGS_BURST=5",
                 "RATE_WORKSPACES_REPLENISH=1","RATE_WORKSPACES_BURST=5",
-                "RATE_TOKENS_REPLENISH=1",    "RATE_TOKENS_BURST=5",
                 "RATE_DASHBOARD_REPLENISH=1", "RATE_DASHBOARD_BURST=5",
                 "RATE_AUDIT_REPLENISH=1",     "RATE_AUDIT_BURST=5"
         }
@@ -111,7 +110,6 @@ class RateLimiterTest {
             "/auth/login",
             "/flags/evaluate",
             "/workspaces/test",
-            "/tokens/test",
             "/dashboard/test",
             "/audit/test"
     })
@@ -123,6 +121,11 @@ class RateLimiterTest {
                     .exchange()
                     .expectStatus().isOk();
         }
+
+        // Redis refills with second precision: crossing a second boundary adds one token
+        webTestClient.get().uri(uri)
+                .header("Authorization", BEARER_TOKEN)
+                .exchange();
 
         webTestClient.get().uri(uri)
                 .header("Authorization", BEARER_TOKEN)
