@@ -110,6 +110,14 @@ class SecurityConfigTest {
     }
 
     @Test
+    void shouldPermitHealthCheckWithoutToken() {
+        webTestClient.get()
+                .uri("/actuator/health")
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
     void shouldPermitSwaggerUiWithoutToken() {
         webTestClient.get()
                 .uri("/swagger-ui.html")
