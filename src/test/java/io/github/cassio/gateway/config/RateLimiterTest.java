@@ -122,6 +122,11 @@ class RateLimiterTest {
                     .expectStatus().isOk();
         }
 
+        // Redis refills with second precision: crossing a second boundary adds one token
+        webTestClient.get().uri(uri)
+                .header("Authorization", BEARER_TOKEN)
+                .exchange();
+
         webTestClient.get().uri(uri)
                 .header("Authorization", BEARER_TOKEN)
                 .exchange()
