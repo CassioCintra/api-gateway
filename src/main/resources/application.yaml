@@ -56,7 +56,7 @@ spring:
               predicates:
                 - Path=/workspaces/**
               filters:
-                - RewritePath=/workspaces/(?<segment>.*), /users/v1/workspaces/$\{segment}
+                - RewritePath=/workspaces(?<segment>.*), /users/v1/workspaces$\{segment}
                 - name: RequestRateLimiter
                   args:
                     redis-rate-limiter.replenishRate: ${RATE_WORKSPACES_REPLENISH:30}
